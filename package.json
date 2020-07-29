@@ -1,0 +1,20 @@
+{
+  "name": "github-profile-builder",
+  "version": "1.0.0",
+  "description": "Builds a Github Profile pulling in Salesforce certifications from Trailblazer.me",
+  "main": "build_readme.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build_readme.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dcinzona/dcinzona.git"
+  },
+  "author": "Gustavo Tandeciarz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dcinzona/dcinzona/issues"
+  },
+  "homepage": "https://github.com/dcinzona/dcinzona#readme"
+}
