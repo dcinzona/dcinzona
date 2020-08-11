@@ -40,7 +40,7 @@ function buildReadme() {
             rmsub += '## Salesforce Superbadges \n\n';
             let superbadges = JSON.parse(data.superbadgesResult).superbadges;
             superbadges.forEach(badge => {
-                rmsub += createImgString(badge.imageUrl, badge.title, badge.description);
+                rmsub += createImgString(badge.imageUrl, badge.title, badge.description, 100);
             });
             rmsub += '\n\n';
         } catch (err) {
@@ -287,6 +287,6 @@ function titleCase(str) {
 }
 
 // Utility  function
-function createImgString(imgUrl, title, description) {
-    return ` <img src="${imgUrl}" width="135" title="${title}" alt="${title}" data-description="${description}"> `;
+function createImgString(imgUrl, title, description, width = 135) {
+    return ` <img src="${imgUrl}" width="${width}" title="${title}" alt="${title}" data-description="${description}"> `;
 }
