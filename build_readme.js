@@ -28,32 +28,42 @@ function buildReadme() {
     let startIdx = readmeFile.indexOf(title);
     let rmsub = readmeFile.substring(0, startIdx + title.length) + '\n\n';
 
-    certificationsHandler().then((CertData) => {
-        console.log(CertData);
-        CertData.certificationsList.forEach(cert => {
+    dataHandler().then((data) => {
+        data.certificationsResult.certificationsList.forEach(cert => {
             if (cert.certificationStatus == 'ACTIVE') {
-                let img = ` <img src="${cert.certificationImageUrl}" width="135" title="${cert.title}" alt="${cert.title}" data-description="${cert.description}"> `;
-                rmsub += img;
+                rmsub += createImgString(cert.certificationImageUrl, cert.title, cert.description);
             }
         });
         rmsub += '\n\n';
+
+        try {
+            rmsub += '## Salesforce Superbadges \n\n';
+            let superbadges = JSON.parse(data.superbadgesResult).superbadges;
+            superbadges.forEach(badge => {
+                rmsub += createImgString(badge.imageUrl, badge.title, badge.description);
+            });
+            rmsub += '\n\n';
+        } catch (err) {
+
+        }
+
         readmeFile = rmsub;
         fs.writeFileSync('README.md', readmeFile);
         //badgesHandler().then((badges) => { });
     }).catch((err) => {
         console.log(err);
     });
-};
+}
 
 // Gets Salesforce certifications the Trailblazer has earned.
-async function certificationsHandler() {
+async function dataHandler() {
 
     let userID = await getTrailheadID(alias);
 
     var trailheadData = await getApexExecResponse(`message={"actions":[` + getAction("AchievementService", "fetchAchievements", userID, "", "") + `]}` +
         `&aura.context=` + getAuraContext() + `&aura.pageURI=&aura.token="`);
 
-    var jsonOutput = (trailheadData.actions[0].returnValue.returnValue.certificationsResult);
+    var jsonOutput = (trailheadData.actions[0].returnValue.returnValue);
 
     return jsonOutput;
 
@@ -80,13 +90,13 @@ async function badgesHandler() {
 }
 
 // Gets Trailhead General Profile Data (unused)
-function gettrailblazerHandler() {
+async function gettrailblazerHandler() {
 
-    userID = getTrailheadID(alias);
-    console.log(userID);
-    var trailheadData = getApexExecResponse(
+    userID = await getTrailheadID(alias);
+    var trailheadData = await getApexExecResponse(
         `message={"actions":[` + getAction("TrailheadProfileService", "fetchTrailheadData", userID, "", "") + `]}` +
         `&aura.context=` + getAuraContext() + `&aura.pageURI=/id&aura.token="`);
+    console.log(JSON.stringify(trailheadData));
 }
 
 // Core method to send requests to API service endpoints
@@ -276,3 +286,7 @@ function titleCase(str) {
     return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 }
 
+// Utility  function
+function createImgString(imgUrl, title, description) {
+    return ` <img src="${imgUrl}" width="135" title="${title}" alt="${title}" data-description="${description}"> `;
+}
