@@ -29,7 +29,7 @@ function buildReadme() {
     let rmsub = readmeFile.substring(0, startIdx + title.length) + '\n\n';
 
     dataHandler().then((data) => {
-        data.certificationsResult.certificationsList.forEach(cert => {
+        data.certificationsResult.certificationsList.sort(sortByTitleDesc).forEach(cert => {
             if (cert.certificationStatus == 'ACTIVE') {
                 rmsub += createImgString(cert.certificationImageUrl, cert.title, cert.description);
             }
@@ -289,4 +289,22 @@ function titleCase(str) {
 // Utility  function
 function createImgString(imgUrl, title, description, width = 135) {
     return ` <img src="${imgUrl}" width="${width}" title="${title}" alt="${title}" data-description="${description}"> `;
+}
+
+// Utility function
+function sortByTitle(a, b) {
+    var nameA = a.title.toUpperCase(); // ignore upper and lowercase
+    var nameB = b.title.toUpperCase(); // ignore upper and lowercase
+    if (nameA < nameB) {
+        return -1;
+    }
+    if (nameA > nameB) {
+        return 1;
+    }
+    // names must be equal
+    return 0;
+}
+
+function sortByTitleDesc(a, b) {
+    return sortByTitle(b, a);
 }
