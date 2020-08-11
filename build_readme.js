@@ -5,7 +5,7 @@ const fs = require('fs');
 const trailblazerMe = "https://trailblazer.me/id/";
 const trailblazerMeUserID = "https://trailblazer.me/id?cmty=trailhead&uid=";
 const trailblazerMeApexExec = "https://trailblazer.me/aura?r=0&aura.ApexAction.execute=1";
-const fwuid = "ReJ5V8Oa_EmHa1B_VZHK_g";
+const fwuid = "7p9HLMpgnV2GO9MqZhXGUw";
 const alias = 'gustavo';
 
 let readmeFile = fs.readFileSync('README.md').toString();
@@ -34,6 +34,7 @@ function run() {
 }
 
 run();
+//certificationsHandler().then(console.log);
 
 function gettrailblazerHandler() {
 
@@ -86,7 +87,7 @@ function getApexExecResponse(messagePayload) {
 
         const options = {
             hostname: 'trailblazer.me',
-            path: '/aura?r=0&aura.ApexAction.execute=1',
+            path: '/aura?r=0&aura.ApexAction.execute=2',
             method: 'POST',
             headers: {
                 'Accept': '*/*',
@@ -166,7 +167,7 @@ function getAuraContext() {
         "fwuid":"` + fwuid + `",
         "app":"c:ProfileApp",
         "loaded":{
-            "APPLICATION@markup://c:ProfileApp":"ZoNFIdcxHaEP9RDPdsobUQ"
+            "APPLICATION@markup://c:ProfileApp":"dMKjLLjxd-TtEhlZCWo1Rw"
         },
         "dn":[],
         "globals":{
