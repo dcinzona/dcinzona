@@ -16,7 +16,8 @@ let profileContext, auraContext, readmeFile;
 let main = async function () {
     readmeFile = fs.readFileSync('README.md').toString();
     profileContext = await getProfileAppData();
-
+    //console.log(profileContext)
+    //dataHandler().then(console.log);
     buildReadme();
 };
 
@@ -102,11 +103,12 @@ async function gettrailblazerHandler() {
 // Core method to send requests to API service endpoints
 function getApexExecResponse(messagePayload) {
 
+    //console.log(messagePayload);
     return new Promise((resolve, reject) => {
 
         const options = {
             hostname: 'trailblazer.me',
-            path: '/aura?r=0&aura.ApexAction.execute=1',// + apexExecuteVersion,
+            path: '/aura?r=0&aura.ApexAction.execute=2',// + apexExecuteVersion,
             method: 'POST',
             headers: {
                 'Accept': '*/*',
@@ -256,9 +258,13 @@ function getTrailheadID(userAlias) {
 
                 res.on('end', () => {
                     try {
-                        //const parsedData = JSON.parse(rawData);
-                        //console.log(parsedData);
-                        userID = rawData.substring(rawData.indexOf("uid: ") + 6, rawData.indexOf("uid: ") + 24);
+                        let strSearch = "TBIDUserId__c\":";
+                        userID = rawData.substring(
+                            rawData.indexOf(strSearch) + strSearch.length + 1,
+                            rawData.indexOf("TBIDUserId__c\":") + strSearch.length + 19
+                        );
+
+                        console.log(userID);
                         resolve(userID);
                     } catch (e) {
                         reject(e.message);
