@@ -5,28 +5,39 @@ const fs = require('fs');
 const trailblazerMe = "https://trailblazer.me/id/";
 const trailblazerMeUserID = "https://trailblazer.me/id?cmty=trailhead&uid=";
 const trailblazerMeApexExec = "https://trailblazer.me/aura?r=0&aura.ApexAction.execute=1";
-const fwuid = "ReJ5V8Oa_EmHa1B_VZHK_g";
+const fwuid = "Q8onN6EmJyGRC51_NSPc2A";
 const alias = 'gustavo';
 
 let readmeFile = fs.readFileSync('README.md').toString();
 
 function run() {
 
-    let title = '## Salesforce Certifications';
-    let startIdx = readmeFile.indexOf(title);
-    let rmsub = readmeFile.substring(0, startIdx + title.length) + '\n\n';
+    let certTitle = '## Salesforce Certifications';
+    let startIdx = readmeFile.indexOf(certTitle);
+    let rmsub = readmeFile.substring(0, startIdx + certTitle.length) + '\n\n<br/>';
+    
 
     certificationsHandler().then((CertData) => {
         //console.log(CertData.certificationsList);
-        //console.log(CertData);
-        CertData.certificationsList.forEach(cert => {
-            if (cert.certificationStatus == 'ACTIVE') {
-                let img = ` <img src="${cert.certificationImageUrl}" width="135" title="${cert.title}" alt="${cert.title}" data-description="${cert.description}"> `;
+        console.log(CertData);
+        CertData.certificationsResult.certificationsList.forEach(cert => {
+            console.log(cert);
+            if (cert.certificationStatus == 'ACTIVE' || cert.certificationStatus == 'MAINTENANCE_DUE') {
+                let img = ` <a href="${cert.certificationUrl}" target="_blank"><img src="${cert.certificationImageUrl}" width="160" title="${cert.title}" alt="${cert.title}" data-description="${cert.description}"></a> `;
                 rmsub += img;
             }
         });
-        rmsub += '\n\n';
-        //console.log(rmsub);
+        rmsub += '\n<br><br>\n\n';
+        
+        let sbString = '## Salesforce Superbadges \n\n<br>';
+        let superbadges = JSON.parse(CertData.superbadgesResult).superbadges;
+        superbadges.forEach(cert => {
+            
+            let img = ` <a href="${cert.link}" target="_blank"><img src="${cert.imageUrl}" width="100" title="${cert.title}" alt="${cert.title}" data-description="${cert.description}"></a> `;
+            sbString += img;
+        });
+
+        rmsub += sbString + '\n\n<br>';
         readmeFile = rmsub;
         fs.writeFileSync('README.md', readmeFile);
         //badgesHandler().then((badges) => { });
@@ -52,10 +63,9 @@ async function certificationsHandler() {
     var trailheadData = await getApexExecResponse(`message={"actions":[` + getAction("AchievementService", "fetchAchievements", userID, "", "") + `]}` +
         `&aura.context=` + getAuraContext() + `&aura.pageURI=&aura.token="`);
 
-    //console.log(trailheadData);
+    console.log(trailheadData.actions[0].returnValue);
 
-    var jsonOutput = (trailheadData.actions[0].returnValue.returnValue.certificationsResult);
-    //console.log(jsonOutput);
+    var jsonOutput = (trailheadData.actions[0].returnValue.returnValue);
 
     return jsonOutput;
 
@@ -67,7 +77,8 @@ async function badgesHandler() {
 
     var trailheadData = await getApexExecResponse(
         `message={"actions":[` + getAction("TrailheadProfileService", "fetchTrailheadBadges", userID, "0", "All") + `]}` +
-        `&aura.context=` + getAuraContext() + `&aura.pageURI=&aura.token="`);
+        `&aura.context=` + getAuraContext() + `&aura.pageURI=&aura.token="`
+        );
 
     try {
         var jsonOutput = JSON.parse(trailheadData.actions[0].returnValue.returnValue.body).value[0].EarnedAwards;
@@ -81,12 +92,12 @@ async function badgesHandler() {
 }
 
 function getApexExecResponse(messagePayload) {
-
+    console.log(messagePayload);
     return new Promise((resolve, reject) => {
 
         const options = {
             hostname: 'trailblazer.me',
-            path: '/aura?r=0&aura.ApexAction.execute=1',
+            path: '/aura?r=0&aura.ApexAction.execute=2',
             method: 'POST',
             headers: {
                 'Accept': '*/*',
@@ -166,7 +177,7 @@ function getAuraContext() {
         "fwuid":"` + fwuid + `",
         "app":"c:ProfileApp",
         "loaded":{
-            "APPLICATION@markup://c:ProfileApp":"ZoNFIdcxHaEP9RDPdsobUQ"
+            "APPLICATION@markup://c:ProfileApp":"9n54ZrqxcjlOD1q4vsaQRw"
         },
         "dn":[],
         "globals":{
@@ -184,12 +195,14 @@ function getTrailheadID(userAlias) {
                 res.setEncoding('utf8');
                 let rawData = '';
                 res.on('data', (chunk) => rawData += chunk);
-
+                
                 res.on('end', () => {
                     try {
                         //const parsedData = JSON.parse(rawData);
-                        //console.log(parsedData);
-                        userID = rawData.substring(rawData.indexOf("uid: ") + 6, rawData.indexOf("uid: ") + 24);
+                        //console.log(rawData);
+                        let prefix = "/sobjects/User/";
+                        userID = rawData.substring(rawData.indexOf(prefix) + prefix.length, rawData.indexOf(prefix) + (prefix.length + 18));
+                        console.log(userID);
                         resolve(userID);
                     } catch (e) {
                         reject(e.message);
