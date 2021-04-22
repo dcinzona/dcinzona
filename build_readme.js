@@ -30,9 +30,11 @@ function buildReadme() {
     let rmsub = readmeFile.substring(0, startIdx + title.length) + '\n\n';
 
     dataHandler().then((data) => {
+        console.log(data);
         data.certificationsResult.certificationsList.sort(sortByTitleDesc).forEach(cert => {
-            if (cert.certificationStatus == 'ACTIVE') {
-                rmsub += createImgString(cert.certificationImageUrl, cert.title, cert.description);
+            console.log(cert);
+            if (cert.certificationStatus == 'ACTIVE' || cert.certificationStatus == 'MAINTENANCE_DUE') {
+                rmsub += createImgString(cert.certificationImageUrl, cert.title, cert.description, cert.certificationUrl, 160);
             }
         });
         rmsub += '\n\n';
@@ -41,7 +43,7 @@ function buildReadme() {
             rmsub += '## Salesforce Superbadges \n\n';
             let superbadges = JSON.parse(data.superbadgesResult).superbadges;
             superbadges.forEach(badge => {
-                rmsub += createImgString(badge.imageUrl, badge.title, badge.description, 100);
+                rmsub += createImgString(badge.imageUrl, badge.title, badge.description, badge.link, 100);
             });
             rmsub += '\n\n';
         } catch (err) {
@@ -258,10 +260,11 @@ function getTrailheadID(userAlias) {
 
                 res.on('end', () => {
                     try {
-                        let strSearch = "TBIDUserId__c\":";
+                        console.log(rawData);
+                        let strSearch = "/sobjects/User/";//"TBIDUserId__c\":";
                         userID = rawData.substring(
-                            rawData.indexOf(strSearch) + strSearch.length + 1,
-                            rawData.indexOf("TBIDUserId__c\":") + strSearch.length + 19
+                            rawData.indexOf(strSearch) + strSearch.length,// + 1,
+                            rawData.indexOf(strSearch) + strSearch.length + 18//19
                         );
 
                         console.log(userID);
@@ -293,8 +296,10 @@ function titleCase(str) {
 }
 
 // Utility  function
-function createImgString(imgUrl, title, description, width = 135) {
-    return ` <img src="${imgUrl}" width="${width}" title="${title}" alt="${title}" data-description="${description}"> `;
+function createImgString(imgUrl, title, description, link, width = 135) {
+    let a = link != null ? `<a href="${link}" target="_blank">`:``;
+    let ae = link != null ? `</a>`:``;
+    return ` ${a}<img src="${imgUrl}" width="${width}" title="${title}" alt="${title}" data-description="${description}">${ae} `;
 }
 
 // Utility function
