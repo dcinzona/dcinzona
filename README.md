@@ -2,7 +2,7 @@
 
 Doing this for fun. Content pulls directly from Trailblazer.me and is updated nightly.
 
-<a rel="me" href="https://noc.social/@gmt"></a>
+<a rel="nofollow me" href="https://noc.social/@gmt"></a>
 
 ## Salesforce Certifications
 
