@@ -295,33 +295,15 @@ function titleCase(str) {
     return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 }
 
-// Trailhead moved certification images off the old ContentForce ImageServer URLs.
-// Keep known credentials on stable, official assets and only use an API image when
-// it is not one of the retired ImageServer URLs.
-const certificationRoleImages = {
-    technicalarchitect: 'https://developer.salesforce.com/resources2/certification-site/images/roles/architect-role-image2.png',
-    servicecloudconsultant: 'https://developer.salesforce.com/resources2/certification-site/images/roles/consultant.png',
-    salescloudconsultant: 'https://developer.salesforce.com/resources2/certification-site/images/roles/consultant.png',
-    platformdeveloperi: 'https://developer.salesforce.com/resources2/certification-site/images/roles/developer-role-image2.png',
-    platformappbuilder: 'https://developer.salesforce.com/resources2/certification-site/images/roles/developer-role-image2.png',
-    administrator: 'https://developer.salesforce.com/resources2/certification-site/images/roles/admin-role-image2.png'
-};
-const defaultCertificationImage = 'https://developer.salesforce.com/resources2/certification-site/images/roles/developer-role-image2.png';
-
+// Trailhead's old content.force.com host no longer serves certification badges.
+// The same ImageServer records remain available from the current Salesforce host.
 function getCertificationImageUrl(certification) {
-    const certificationUrl = certification.certificationUrl || '';
-    const slug = certificationUrl.replace(/\/$/, '').split('/').pop().toLowerCase();
-    const officialImage = certificationRoleImages[slug];
+    const imageUrl = certification.certificationImageUrl || '';
 
-    if (officialImage) {
-        return officialImage;
-    }
-
-    if (certification.certificationImageUrl && !/servlet\.ImageServer/i.test(certification.certificationImageUrl)) {
-        return certification.certificationImageUrl;
-    }
-
-    return defaultCertificationImage;
+    return imageUrl.replace(
+        /^https?:\/\/[^/]+(?=\/servlet\/servlet\.ImageServer)/i,
+        'https://drm.my.salesforce.com'
+    );
 }
 
 // Utility  function
