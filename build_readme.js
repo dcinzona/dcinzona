@@ -13,7 +13,28 @@ const profileAppURI = 'https://trailblazer.me/c/ProfileApp.app?aura.format=JSON&
 const alias = 'gustavo';
 
 // Current profile values used when the legacy Trailhead endpoint returns no data.
-const activeCertifications = [
+const earnedCertifications = [
+    {
+        title: 'Salesforce Certified Platform Administrator',
+        certificationStatus: 'EXPIRED',
+        certificationUrl: 'https://trailhead.salesforce.com/credentials/administrator',
+        certificationImageUrl: 'https://drm.my.salesforce.com/servlet/servlet.ImageServer?id=015Rf00000MAGlB&oid=00DF0000000gZsu',
+        description: 'Certified Platform Administrators are Salesforce professionals who build and manage trusted solutions on the Salesforce Platform. They administer and secure the lifecycle of users, data, apps and agents to ensure org health and maximize value.'
+    },
+    {
+        title: 'Salesforce Certified Agentforce Sales Consultant',
+        certificationStatus: 'EXPIRED',
+        certificationUrl: 'https://trailhead.salesforce.com/credentials/salescloudconsultant',
+        certificationImageUrl: 'https://drm.my.salesforce.com/servlet/servlet.ImageServer?id=015Rf00000gfCTG&oid=00DF0000000gZsu',
+        description: 'Certified Agentforce Sales Consultants are trained to design and implement Agentforce Sales solutions that are sustainable, scalable, and contribute to long-term customer success.'
+    },
+    {
+        title: 'Salesforce Certified Agentforce Service Consultant',
+        certificationStatus: 'EXPIRED',
+        certificationUrl: 'https://trailhead.salesforce.com/credentials/servicecloudconsultant',
+        certificationImageUrl: 'https://drm.my.salesforce.com/servlet/servlet.ImageServer?id=015Rf00000gfDCP&oid=00DF0000000gZsu',
+        description: 'Certified Agentforce Service Consultants are experts at designing and implementing Agentforce Service solutions that are sustainable and scalable, meet customer business requirements, and contribute to long-term customer success.'
+    },
     {
         title: 'Salesforce Certified Platform App Builder',
         certificationStatus: 'ACTIVE',
@@ -34,6 +55,13 @@ const activeCertifications = [
         certificationUrl: 'https://trailhead.salesforce.com/credentials/technicalarchitect',
         certificationImageUrl: 'https://drm.my.salesforce.com/servlet/servlet.ImageServer?id=015Rf00000MA6U6&oid=00DF0000000gZsu',
         description: 'Certified Technical Architects possess broad knowledge across multiple development platforms. They use their skills and experience to assess customer requirements and architecture, then use that knowledge to design secure, high-performance technical solutions that maximize the potential of the Salesforce Platform.'
+    },
+    {
+        title: 'Salesforce Certified AI Associate',
+        certificationStatus: 'RETIRED',
+        certificationUrl: 'https://trailhead.salesforce.com/credentials/aiassociate',
+        certificationImageUrl: 'https://drm.my.salesforce.com/servlet/servlet.ImageServer?id=015Rf00000YMdGt&oid=00DF0000000gZsu',
+        description: "Certified AI Associates should be able to provide informed strategies and guide stakeholder decisions based on Salesforce's Trusted AI Principles."
     }
 ];
 const superbadgeFallbacks = [
@@ -84,12 +112,10 @@ function buildReadme() {
         console.log(data);
         const certifications = Array.isArray(data.certificationsResult.certificationsList) && data.certificationsResult.certificationsList.length
             ? data.certificationsResult.certificationsList
-            : activeCertifications;
+            : earnedCertifications;
         certifications.sort(sortByTitleDesc).forEach(cert => {
             console.log(cert);
-            if (cert.certificationStatus == 'ACTIVE' || cert.certificationStatus == 'MAINTENANCE_DUE') {
-                rmsub += createCertificationString(cert);
-            }
+            rmsub += createCertificationString(cert);
         });
         rmsub += '\n\n';
 
