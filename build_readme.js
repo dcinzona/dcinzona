@@ -11,6 +11,57 @@ const profileAppURI = 'https://trailblazer.me/c/ProfileApp.app?aura.format=JSON&
 /* */
 
 const alias = 'gustavo';
+
+// Current profile values used when the legacy Trailhead endpoint returns no data.
+const activeCertifications = [
+    {
+        title: 'Salesforce Certified Platform App Builder',
+        certificationStatus: 'ACTIVE',
+        certificationUrl: 'https://trailhead.salesforce.com/credentials/platformappbuilder',
+        certificationImageUrl: 'https://drm.my.salesforce.com/servlet/servlet.ImageServer?id=015Rf00000MAEmf&oid=00DF0000000gZsu',
+        description: 'Certified Platform App Builders have the skills and knowledge to design, build, and deploy custom applications using the declarative customization capabilities of the Salesforce Platform.'
+    },
+    {
+        title: 'Salesforce Certified Platform Developer',
+        certificationStatus: 'ACTIVE',
+        certificationUrl: 'https://trailhead.salesforce.com/credentials/platformdeveloperi',
+        certificationImageUrl: 'https://drm.my.salesforce.com/servlet/servlet.ImageServer?id=015Rf00000MA9LY&oid=00DF0000000gZsu',
+        description: 'Certified Platform Developers understand how to develop and deploy custom business logic and custom interfaces using the programmatic capabilities of the Lightning Platform. They can also extend the Lightning Platform using Apex and Visualforce.'
+    },
+    {
+        title: 'Salesforce Certified Technical Architect',
+        certificationStatus: 'ACTIVE',
+        certificationUrl: 'https://trailhead.salesforce.com/credentials/technicalarchitect',
+        certificationImageUrl: 'https://drm.my.salesforce.com/servlet/servlet.ImageServer?id=015Rf00000MA6U6&oid=00DF0000000gZsu',
+        description: 'Certified Technical Architects possess broad knowledge across multiple development platforms. They use their skills and experience to assess customer requirements and architecture, then use that knowledge to design secure, high-performance technical solutions that maximize the potential of the Salesforce Platform.'
+    }
+];
+const superbadgeFallbacks = [
+    {
+        title: 'Superbadge: Agentforce Service',
+        imageUrl: 'https://res.cloudinary.com/hy4kyit2a/f_auto/fl_lossy/q_70/learn/superbadges/superbadge-agentforce-service-sbu/8b15afebd3bc004b830549d6becc8e46_badge.png'
+    },
+    {
+        title: 'Superbadge: Prompt Builder Templates',
+        imageUrl: 'https://res.cloudinary.com/hy4kyit2a/f_auto/fl_lossy/q_70/learn/superbadges/superbadge_prompt_builder_templates_sbu/4963aa9e9a6d59bd057aba9c7a8e7a88_badge.png'
+    },
+    {
+        title: 'Data Integration Specialist',
+        imageUrl: 'https://res.cloudinary.com/hy4kyit2a/f_auto/fl_lossy/q_70/learn/superbadges/superbadge_integration/109b07c27bdad837c3c0776db69650c1_badge.png'
+    },
+    {
+        title: 'Apex Specialist',
+        imageUrl: 'https://res.cloudinary.com/hy4kyit2a/f_auto/fl_lossy/q_70/learn/superbadges/superbadge_apex/2d3426c48dc056fd5c083ecb5cb66a56_badge.png'
+    },
+    {
+        title: 'Security Specialist',
+        imageUrl: 'https://res.cloudinary.com/hy4kyit2a/f_auto/fl_lossy/q_70/learn/superbadges/superbadge_security/2cb1e61a5ef594182a9a6a0b26862b5f_badge.png'
+    },
+    {
+        title: 'Lightning Experience Specialist',
+        imageUrl: 'https://res.cloudinary.com/hy4kyit2a/f_auto/fl_lossy/q_70/learn/superbadges/superbadge_lex/fec7e5aa3aa903ae95c273fa29098f26_badge.png'
+    }
+];
 let profileContext, auraContext, readmeFile;
 
 let main = async function () {
@@ -31,7 +82,10 @@ function buildReadme() {
 
     dataHandler().then((data) => {
         console.log(data);
-        data.certificationsResult.certificationsList.sort(sortByTitleDesc).forEach(cert => {
+        const certifications = Array.isArray(data.certificationsResult.certificationsList) && data.certificationsResult.certificationsList.length
+            ? data.certificationsResult.certificationsList
+            : activeCertifications;
+        certifications.sort(sortByTitleDesc).forEach(cert => {
             console.log(cert);
             if (cert.certificationStatus == 'ACTIVE' || cert.certificationStatus == 'MAINTENANCE_DUE') {
                 rmsub += createCertificationString(cert);
@@ -40,15 +94,24 @@ function buildReadme() {
         rmsub += '\n\n';
 
         try {
-            rmsub += '## Salesforce Superbadges \n\n';
+            rmsub += '## Salesforce Superbadges\n\n<p align="center">\n';
             let superbadges = JSON.parse(data.superbadgesResult).superbadges;
+            if (!Array.isArray(superbadges) || !superbadges.length) {
+                superbadges = superbadgeFallbacks;
+            }
             superbadges.forEach(badge => {
                 rmsub += createImgString(badge.imageUrl, badge.title, badge.description, badge.link, 100);
             });
-            rmsub += '\n\n';
+            rmsub += '\n</p>\n\n';
         } catch (err) {
-
+            rmsub += '<p align="center">\n';
+            superbadgeFallbacks.forEach(badge => {
+                rmsub += createImgString(badge.imageUrl, badge.title, badge.description, badge.link, 100);
+            });
+            rmsub += '\n</p>\n\n';
         }
+
+        rmsub += `## Agentblazer Champion '26\n\n<p align="center">\n<img src="assets/agentblazer-champion-2026.png" width="672" title="Agentblazer Champion '26" alt="Agentblazer Champion '26">\n</p>\n\n`;
 
         readmeFile = rmsub;
         fs.writeFileSync('README.md', readmeFile);
@@ -326,7 +389,8 @@ function getCertificationImageUrl(certification) {
 function createImgString(imgUrl, title, description, link, width = 135) {
     let a = link != null ? `<a href="${link}" target="_blank">`:``;
     let ae = link != null ? `</a>`:``;
-    return ` ${a}<img src="${imgUrl}" width="${width}" title="${title}" alt="${title}" data-description="${description}">${ae} `;
+    let dataDescription = description ? ` data-description="${description}"` : '';
+    return `${a}<img src="${imgUrl}" width="${width}" title="${title}" alt="${title}"${dataDescription}>${ae}`;
 }
 
 // Utility function
