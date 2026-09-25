@@ -113,11 +113,21 @@ function buildReadme() {
         const certifications = Array.isArray(data.certificationsResult.certificationsList) && data.certificationsResult.certificationsList.length
             ? data.certificationsResult.certificationsList
             : earnedCertifications;
-        certifications.sort(sortByTitleDesc).forEach(cert => {
+        const sortedCertifications = certifications.sort(sortByTitleDesc);
+        const technicalArchitect = sortedCertifications.find(cert => /\/technicalarchitect\/?$/i.test(cert.certificationUrl || ''));
+        const otherCertifications = sortedCertifications.filter(cert => cert !== technicalArchitect);
+
+        if (technicalArchitect) {
+            console.log(technicalArchitect);
+            rmsub += createCertificationString(technicalArchitect);
+        }
+
+        rmsub += '<p align="center">\n';
+        otherCertifications.forEach(cert => {
             console.log(cert);
-            rmsub += createCertificationString(cert);
+            rmsub += createCertificationString(cert, 100);
         });
-        rmsub += '\n\n';
+        rmsub += '\n</p>\n\n';
 
         try {
             rmsub += '## Salesforce Superbadges\n\n<p align="center">\n';
@@ -384,13 +394,13 @@ function titleCase(str) {
     return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 }
 
-function createCertificationString(certification) {
+function createCertificationString(certification, width = 160) {
     const image = createImgString(
         getCertificationImageUrl(certification),
         certification.title,
         certification.description,
         certification.certificationUrl,
-        160
+        width
     );
 
     if (/\/technicalarchitect\/?$/i.test(certification.certificationUrl || '')) {
