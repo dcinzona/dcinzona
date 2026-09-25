@@ -34,7 +34,7 @@ function buildReadme() {
         data.certificationsResult.certificationsList.sort(sortByTitleDesc).forEach(cert => {
             console.log(cert);
             if (cert.certificationStatus == 'ACTIVE' || cert.certificationStatus == 'MAINTENANCE_DUE') {
-                rmsub += createImgString(getCertificationImageUrl(cert), cert.title, cert.description, cert.certificationUrl, 160);
+                rmsub += createCertificationString(cert);
             }
         });
         rmsub += '\n\n';
@@ -293,6 +293,22 @@ function titleCase(str) {
         str = str.toString();
 
     return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+}
+
+function createCertificationString(certification) {
+    const image = createImgString(
+        getCertificationImageUrl(certification),
+        certification.title,
+        certification.description,
+        certification.certificationUrl,
+        160
+    );
+
+    if (/\/technicalarchitect\/?$/i.test(certification.certificationUrl || '')) {
+        return `<p align="center">\n${image}\n</p>\n\n`;
+    }
+
+    return image;
 }
 
 // Trailhead's old content.force.com host no longer serves certification badges.
